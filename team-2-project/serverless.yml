@@ -1,0 +1,53 @@
+service: team2-project
+
+frameworkVersion: '2'
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    slim: true
+    layer: true
+
+plugins:
+  - serverless-python-requirements
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  region: eu-west-1
+  stage: dev
+  iam:
+    role: arn:aws:iam::064061412720:role/team-2-execution-role
+  
+package:
+  individually: false
+  include:
+    - src/**
+  exclude:
+    - "*"
+    - "*/**"
+
+functions:
+  etl:
+    handler: src/etl/handler.handle
+    layers: 
+      - { Ref: PythonRequirementsLambdaLayer }
+    timeout: 900
+    events:
+      - s3:
+          bucket: cafe-transactions-team-2
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .csv
+    vpc:
+      securityGroupIds:
+        - sg-0e8f1a26780e87b1d	
+      subnetIds:
+        - subnet-0b9c52a62dd33086b
+    environment:
+      DB_CLUSTER: "final-project-infrastructure-redshiftcluster-ba1ic72cchku"
+      DB_HOST: "172.31.76.168"
+      DB_NAME: "team2"
+      DB_PORT: "5439"
+      DB_USER: "awsuser"

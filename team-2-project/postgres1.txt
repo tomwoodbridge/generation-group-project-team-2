@@ -1,0 +1,15 @@
+    CREATE TABLE orders (
+        order_id PRIMARY KEY SERIAL NOT NULL,
+        order_items VARCHAR(128) NOT NULL,
+        purchase_date TIMESTAMP NOT NULL,
+        store_location VARCHAR(128) NOT NULL,
+    );
+
+    CREATE TABLE basket (
+        item_id PRIMARY KEY SERIAL NOT NULL,
+        payment_method VARCHAR(128) NOT NULL,
+        total_spent FLOAT NOT NULL,
+        FORIEGN KEY order_items
+        REFERENCES orders(order_items)
+    );
+
